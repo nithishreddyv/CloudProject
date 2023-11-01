@@ -11,12 +11,19 @@
 	import="java.security.Key,java.security.KeyPair,java.security.KeyPairGenerator,javax.crypto.Cipher"%>
 <%@page
 	import="java.util.*,java.text.SimpleDateFormat,java.util.Date,java.io.FileInputStream,java.io.FileOutputStream,java.io.PrintStream"%>
-	
+	<%@page import="com.oreilly.servlet.*,java.sql.*,java.lang.*,java.text.SimpleDateFormat,java.util.*,java.io.*,javax.servlet.*, javax.servlet.http.*" %>
+
+<%@ page import="java.sql.*"%>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>EPAS: A Sampling Based Similarity Identification Algorithm for the Cloud</title>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<meta name="description" content="website description" />
+  <meta name="keywords" content="website keywords, website keywords" />
+  <meta http-equiv="content-type" content="text/html; charset=windows-1252" />
 <link href="css/style.css" rel="stylesheet" type="text/css" />
 <link rel="stylesheet" type="text/css" href="css/coin-slider.css" />
 <script type="text/javascript" src="js/cufon-yui.js"></script>
@@ -24,19 +31,43 @@
 <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="js/script.js"></script>
 <script type="text/javascript" src="js/coin-slider.min.js"></script>
-<script language="javascript" type='text/javascript'>
-function loadFileAsText()
-{
-	var fileToLoad = document.getElementById("file").files[0];
 
-	var fileReader = new FileReader();
-	fileReader.onload = function(fileLoadedEvent) 
+ <script type='text/javascript'>
+
+function saveTextAsFile()
+{
+	var textToWrite = document.getElementById("textarea").value;
+	var textFileAsBlob = new Blob([textToWrite], {type:'text/plain'});
+	var fileNameToSaveAs = "File.txt";
+
+	var downloadLink = document.createElement("a");
+	downloadLink.download = fileNameToSaveAs;
+	downloadLink.innerHTML = "Download File";
+	if (window.webkitURL != null)
 	{
-		var textFromFileLoaded = fileLoadedEvent.target.result;
-		document.getElementById("textarea").value = textFromFileLoaded;
-	};
-	fileReader.readAsText(fileToLoad, "UTF-8");
+		// Chrome allows the link to be clicked
+		// without actually adding it to the DOM.
+		downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+	}
+	else
+	{
+		// Firefox requires the link to be added to the DOM
+		// before it can be clicked.
+		downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+		downloadLink.onclick = destroyClickedElement;
+		downloadLink.style.display = "none";
+		document.body.appendChild(downloadLink);
+	}
+
+	downloadLink.click();
 }
+
+function destroyClickedElement(event)
+{
+	document.body.removeChild(event.target);
+}
+
+
 
 </script>
 </head>
@@ -49,7 +80,7 @@ function loadFileAsText()
       </div>
       <div class="menu_nav">
         <ul>
-        
+         
         </ul>
       </div>
       <div class="clr"></div>
@@ -66,96 +97,124 @@ function loadFileAsText()
         <div class="article">
           <p class="infopost">EPAS: A Sampling Based Similarity Identification Algorithm for the Cloud</p>
           <div class="clr"></div>
-          <h2 style="text-align:center">Attack Block File Content </h2>
-				<p>&nbsp;</p>
-				<%
-String aname=request.getParameter("aname");
-String file=request.getParameter("fname");
-String block=request.getParameter("block");
+           <h2 align="center"><b>Download File</b> </h2>
+	   <%
+		   	try {
+		   		String file = request.getParameter("t1");
+				String aname = request.getParameter("aname");
+		   		String owner = request.getParameter("oname");
+		   	
+		   		String sk = request.getParameter("sk");
 
-String owner=request.getParameter("owner");
+		   
 
-try
-{
-String keys = "ef50a0ef2c3e3a5f";
-			String query2="";
-			String cont="";
-			if(block.equalsIgnoreCase("Block-1"))
-			{
-			
-			query2="select ct1 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-2"))
-			{
-			
-			query2="select ct2 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-3"))
-			{
-			
-			query2="select ct3 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"'"; 
-			}
-			if(block.equalsIgnoreCase("Block-4"))
-			{
-			
-					query2="select ct4 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			Statement st1=connection.createStatement();
-            ResultSet rs1=st1.executeQuery(query2);
-				if(query2.equalsIgnoreCase("query2"))
-				{
-				%>
-			<h1>invalid Query</h1>
-			<%
-				}
-			ResultSet rs=connection.createStatement().executeQuery("select * from epas_attacker where user='"+aname+"' and type='External' ");
-			if(rs.next())
-			{
-			%>
-			<h1>Sorry You are Blocked</h1>
-			<%
-			}
-			else
-			{
+		   		String strQuery = "select * from epas_cloudserver where fname='"
+		   				+ file
+		   				+ "' and ownername='"
+		   				+ owner
+		   				+ "' ";
+		   	
+	String strQuery1 = "select * from epas_cloudserver where fname='"
+		   				+ file
+		   				+ "' ";
+							ResultSet rs1 = connection.createStatement().executeQuery(
+		   				strQuery1);
+		   		ResultSet rs = connection.createStatement().executeQuery(
+		   				strQuery);
+		   		
 			if(rs1.next())
 			{
-			cont=rs1.getString(1);
+					if(rs.next())
+					{
+							String ct1 = rs.getString(4);
+								String ct2 = rs.getString(6);
+									String ct3 = rs.getString(8);
+										String ct4 = rs.getString(10);
+										
+
+												String keys = "ef50a0ef2c3e3a5f";
+												byte[] keyValue1 = keys.getBytes();
+												Key key1 = new SecretKeySpec(keyValue1, "AES");
+												Cipher c1 = Cipher.getInstance("AES");
+												c1.init(Cipher.DECRYPT_MODE, key1);
+												String decryptedValue1 = new String(Base64
+														.decode(ct1.getBytes()));
+														String decryptedValue2 = new String(Base64
+														.decode(ct2.getBytes()));
+														String decryptedValue3 = new String(Base64
+														.decode(ct3.getBytes()));
+														String decryptedValue4 = new String(Base64
+														.decode(ct4.getBytes()));
+														SimpleDateFormat sdfDate = new SimpleDateFormat(
+							"dd/MM/yyyy");
+					SimpleDateFormat sdfTime = new SimpleDateFormat(
+							"HH:mm:ss");
+
+					Date now = new Date();
+
+					String strDate = sdfDate.format(now);
+					String strTime = sdfTime.format(now);
+					String dt = strDate + "   " + strTime;
+
+					String user = (String) application
+							.getAttribute("uname");
+String type="External";
+					String strQuery2 = "insert into epas_attacker(user,fname,ownername,sk,type,dt) values('"
+							+ aname
+							+ "','"
+							+ file
+							+ "','"+owner+"','"
+							+ sk
+							+ "','"+type+"','"
+							+ dt
+							+ "')";
+					connection.createStatement().executeUpdate(strQuery2);
+						%>
 			
-			}
-			else
-			{
-			%>
-			<h2>File Not Exist<h2>
-			<%
-			}
-			byte[] keyValue = keys.getBytes();
-      			Key key = new SecretKeySpec(keyValue, "AES");
-      			Cipher c = Cipher.getInstance("AES");
-      			c.init(Cipher.DECRYPT_MODE, key);
-      			String decryptedValue = new String(Base64.decode(cont.getBytes()));
+		  </p>
+		  <p align="center" class="style1">File Contents</p>
 
-%>
-<form method="post" action="Attack3.jsp">
-<table width="755" border="1" align="center" >
-<tr><td align="center">User Name</td><td><input type="text" value="<%=aname%>"  name="aname"/> </td></tr>
-<tr><td align="center">File Name</td><td><input type="text"  value="<%=file%>" name="fname"/> </td></tr>
-<tr><td align="center">Select Block</td><td> <input type="text"  value="<%=block%>" name="block"/></td></tr>
-<tr><td align="center">Owner Name</td><td> <input type="text"  value="<%=owner%>" name="owner"/></td></tr>
-
-<tr> <td align="center">File Contents</td><td><textarea name="cont" id="textarea" cols="82" rows="20"><%=decryptedValue%></textarea></td></tr>
-
-
-<tr> <td colspan="2" align="center"><input type="submit" value="Attack"/></td></table>
-<%
-}
-}
-catch(Exception e)
-{
-e.printStackTrace();
-
-}
-%>
-			   <p>&nbsp;</p>
+		    <label>
+	            <div align="center">
+	              <textarea name="text" id="textarea" cols="45" rows="17"><%=decryptedValue1%><%=decryptedValue2%><%=decryptedValue3%><%=decryptedValue4%></textarea>
+				  
+	              <br/>
+	              <br/>
+	              <td><button onClick="saveTextAsFile()">Download</button></td>
+            </div>
+		    </label>
+		  <p align="center">&nbsp; </p>
+		  <p>
+		    <%
+		    	} 
+				else {
+					
+	%>
+	      </p>
+		  <p>
+		  <h1 class="style1">File Doesn't Exist !!!</h1>
+		  </p><br />
+						<p><a href="attack1.jsp">Back</a></p>
+	<%
+		}
+		}
+		else {
+		    %>
+	      </p>
+		  <p>
+		  <h1 class="style1">File Doesn't Exist !!!</h1>
+		  </p><br />
+						<p><a href="attack1.jsp">Back</a></p>
+	
+		<%}
+					
+				
+			
+			connection.close();
+		} catch (Exception e) {
+			out.println(e.getMessage());
+		}
+	%>
           <div class="clr"></div>
         </div>
         <div class="article">
@@ -163,20 +222,20 @@ e.printStackTrace();
         </div>
         </div>
       <div class="sidebar">
-        
+       
         <div class="clr"></div>
         <div class="gadget">
-        
+         
           <div class="clr"></div>
           <ul class="sb_menu">
-                 
+                   
           </ul>
         </div>
         <div class="gadget">
-          
+         
           <div class="clr"></div>
           <ul class="ex_menu">
-          
+                 
           </ul>
         </div>
       </div>

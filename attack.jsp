@@ -69,85 +69,26 @@ function loadFileAsText()
           <h2 style="text-align:center">Attack Block File Content </h2>
 				<p>&nbsp;</p>
 				<%
-String aname=request.getParameter("aname");
-String file=request.getParameter("fname");
-String block=request.getParameter("block");
-
-String owner=request.getParameter("owner");
-
 try
 {
-String keys = "ef50a0ef2c3e3a5f";
-			String query2="";
-			String cont="";
-			if(block.equalsIgnoreCase("Block-1"))
-			{
-			
-			query2="select ct1 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-2"))
-			{
-			
-			query2="select ct2 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-3"))
-			{
-			
-			query2="select ct3 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"'"; 
-			}
-			if(block.equalsIgnoreCase("Block-4"))
-			{
-			
-					query2="select ct4 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			Statement st1=connection.createStatement();
-            ResultSet rs1=st1.executeQuery(query2);
-				if(query2.equalsIgnoreCase("query2"))
-				{
-				%>
-			<h1>invalid Query</h1>
-			<%
-				}
-			ResultSet rs=connection.createStatement().executeQuery("select * from epas_attacker where user='"+aname+"' and type='External' ");
-			if(rs.next())
-			{
-			%>
-			<h1>Sorry You are Blocked</h1>
-			<%
-			}
-			else
-			{
-			if(rs1.next())
-			{
-			cont=rs1.getString(1);
-			
-			}
-			else
-			{
-			%>
-			<h2>File Not Exist<h2>
-			<%
-			}
-			byte[] keyValue = keys.getBytes();
-      			Key key = new SecretKeySpec(keyValue, "AES");
-      			Cipher c = Cipher.getInstance("AES");
-      			c.init(Cipher.DECRYPT_MODE, key);
-      			String decryptedValue = new String(Base64.decode(cont.getBytes()));
 
 %>
-<form method="post" action="Attack3.jsp">
+<form method="post" action="Attack2.jsp">
 <table width="755" border="1" align="center" >
-<tr><td align="center">User Name</td><td><input type="text" value="<%=aname%>"  name="aname"/> </td></tr>
-<tr><td align="center">File Name</td><td><input type="text"  value="<%=file%>" name="fname"/> </td></tr>
-<tr><td align="center">Select Block</td><td> <input type="text"  value="<%=block%>" name="block"/></td></tr>
-<tr><td align="center">Owner Name</td><td> <input type="text"  value="<%=owner%>" name="owner"/></td></tr>
+<tr><td align="center">User Name</td><td><input type="text" placeholder="Enter Your Name" name="aname"/> </td></tr>
+<tr><td align="center">File Name</td><td><input type="text" placeholder="Enter File Name to Attack" name="fname"/> </td></tr>
+<tr><td align="center">Select Block</td><td><select name="block" ><option>--Select--</option>
+<option>Block-1</option>
+<option>Block-2</option>
+<option>Block-3</option>
+<option>Block-4</option>
+</select> </td></tr>
+<tr><td align="center">Owner Name</td><td><input type="text" placeholder="Enter Owner Name" name="owner"/> </td></tr>
 
-<tr> <td align="center">File Contents</td><td><textarea name="cont" id="textarea" cols="82" rows="20"><%=decryptedValue%></textarea></td></tr>
 
 
 <tr> <td colspan="2" align="center"><input type="submit" value="Attack"/></td></table>
 <%
-}
 }
 catch(Exception e)
 {

@@ -74,80 +74,126 @@ String file=request.getParameter("fname");
 String block=request.getParameter("block");
 
 String owner=request.getParameter("owner");
+String cont=request.getParameter("cont");
+String strQuery2="";
 
 try
 {
 String keys = "ef50a0ef2c3e3a5f";
 			String query2="";
-			String cont="";
-			if(block.equalsIgnoreCase("Block-1"))
-			{
 			
-			query2="select ct1 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-2"))
-			{
+	
 			
-			query2="select ct2 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			if(block.equalsIgnoreCase("Block-3"))
-			{
-			
-			query2="select ct3 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"'"; 
-			}
-			if(block.equalsIgnoreCase("Block-4"))
-			{
-			
-					query2="select ct4 from epas_cloudserver where fname='"+file+"' and ownername='"+owner+"' "; 
-			}
-			Statement st1=connection.createStatement();
-            ResultSet rs1=st1.executeQuery(query2);
-				if(query2.equalsIgnoreCase("query2"))
-				{
-				%>
-			<h1>invalid Query</h1>
-			<%
-				}
-			ResultSet rs=connection.createStatement().executeQuery("select * from epas_attacker where user='"+aname+"' and type='External' ");
-			if(rs.next())
-			{
-			%>
-			<h1>Sorry You are Blocked</h1>
-			<%
-			}
-			else
-			{
-			if(rs1.next())
-			{
-			cont=rs1.getString(1);
-			
-			}
-			else
-			{
-			%>
-			<h2>File Not Exist<h2>
-			<%
-			}
+	
+			String h1 = "";
+			String filename = "filename.txt";
+
+
 			byte[] keyValue = keys.getBytes();
-      			Key key = new SecretKeySpec(keyValue, "AES");
-      			Cipher c = Cipher.getInstance("AES");
-      			c.init(Cipher.DECRYPT_MODE, key);
-      			String decryptedValue = new String(Base64.decode(cont.getBytes()));
+			Key key = new SecretKeySpec(keyValue, "AES");
+			Cipher c = Cipher.getInstance("AES");
+			c.init(Cipher.ENCRYPT_MODE, key);
+			String encryptedValue = new String(Base64.encode(cont.getBytes()));
+			PrintStream p = new PrintStream(new FileOutputStream("E:/EPAS/"+ filename));
+			p.print(new String(cont));
 
+			MessageDigest md = MessageDigest.getInstance("SHA1");
+			FileInputStream fis11 = new FileInputStream("E:/EPAS/"+ filename);
+
+			DigestInputStream dis1 = new DigestInputStream(fis11, md);
+			BufferedInputStream bis1 = new BufferedInputStream(dis1);
+
+			//Read the bis so SHA1 is auto calculated at dis
+			while (true) {
+				int b1 = bis1.read();
+				if (b1 == -1)
+					break;
+			}
+
+			BigInteger bi1 = new BigInteger(md.digest());
+			String spl1 = bi1.toString();
+			h1 = bi1.toString(16);
+			KeyPairGenerator kg = KeyPairGenerator.getInstance("RSA");
+			Cipher encoder = Cipher.getInstance("RSA");
+			KeyPair kp = kg.generateKeyPair();
+
+			Key pubKey = kp.getPublic();
+
+			byte[] pub = pubKey.getEncoded();
+			//				System.out.println("PUBLIC KEY" + pub);
+
+			String pk = String.valueOf(pub);
+			
+			
+
+			SimpleDateFormat sdfDate = new SimpleDateFormat(
+					"dd/MM/yyyy");
+			SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
+
+			Date now = new Date();
+
+			String strDate = sdfDate.format(now);
+			String strTime = sdfTime.format(now);
+			String dt = strDate + "   " + strTime;
+			
+			
+				if(block.equalsIgnoreCase("Block-1"))
+			{
+			
+				 strQuery2 = "update epas_cloudserver set ct1='"
+						+ encryptedValue + "', mac1='" + h1 + "',sk='" + pk
+						+ "' where fname='" + file + "'  and ownername='"+owner+"' ";
+			}
+				if(block.equalsIgnoreCase("Block-2"))
+			{
+			
+				 strQuery2 = "update epas_cloudserver set ct2='"
+						+ encryptedValue + "', mac2='" + h1 + "',sk='" + pk
+						+ "' where fname='" + file + "'  and ownername='"+owner+"' ";
+			}
+				if(block.equalsIgnoreCase("Block-3"))
+			{
+			
+				 strQuery2 = "update epas_cloudserver set ct3='"
+						+ encryptedValue + "', mac3='" + h1 + "',sk='" + pk
+						+ "' where fname='" + file + "'  and ownername='"+owner+"' ";
+			}
+				if(block.equalsIgnoreCase("Block-4"))
+			{
+			
+				 strQuery2 = "update epas_cloudserver set ct4='"
+						+ encryptedValue + "', mac4='" + h1 + "',sk='" + pk
+						+ "' where fname='" + file + "'  and ownername='"+owner+"' ";
+			}
+			
+				connection.createStatement().executeUpdate(strQuery2);
+				
+			
+
+			String type="External";
+					String strQuery4 = "insert into epas_attacker(user,fname,ownername,sk,type,dt) values('"
+							+ aname
+							+ "','"
+							+ file
+							+ "','"+owner+"','"
+							+ pk
+							+ "','"+type+"','"
+							+ dt
+							+ "')";
+					connection.createStatement().executeUpdate(strQuery4);
 %>
-<form method="post" action="Attack3.jsp">
-<table width="755" border="1" align="center" >
-<tr><td align="center">User Name</td><td><input type="text" value="<%=aname%>"  name="aname"/> </td></tr>
-<tr><td align="center">File Name</td><td><input type="text"  value="<%=file%>" name="fname"/> </td></tr>
-<tr><td align="center">Select Block</td><td> <input type="text"  value="<%=block%>" name="block"/></td></tr>
-<tr><td align="center">Owner Name</td><td> <input type="text"  value="<%=owner%>" name="owner"/></td></tr>
-
-<tr> <td align="center">File Contents</td><td><textarea name="cont" id="textarea" cols="82" rows="20"><%=decryptedValue%></textarea></td></tr>
 
 
-<tr> <td colspan="2" align="center"><input type="submit" value="Attack"/></td></table>
+
+
+
+
+<p>
+<h1 >Attacked Success Fully!!!<a href="attack.jsp">Back</a></h1>
+</p>
+<br />
+
 <%
-}
 }
 catch(Exception e)
 {
